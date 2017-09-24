@@ -104,8 +104,8 @@ class TwoLayerNet(object):
         # classifier loss.                                                          #
         #############################################################################
         
-        scoreExps = np.exp(scores)
-        exampleLoss = np.log(scoreExps.sum(axis = 1)) - scores[range(N), y]
+        sumExps = np.exp(scores).sum(axis = 1)
+        exampleLoss = np.log(sumExps) - scores[range(N), y]
         
         loss = (
             exampleLoss.sum() / N
@@ -124,7 +124,21 @@ class TwoLayerNet(object):
         # and biases. Store the results in the grads dictionary. For example,       #
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
-        pass
+        
+        # Calculate gradient of W2, b2      
+        upstreamGrad = np.exp(scores) * (1 / sumExps).reshape(N, 1) * (1.0 / N)
+        upstreamGrad[range(N), y] += -1 * (1.0 / N)
+        
+        grads["b2"] = upstreamGrad.sum(axis = 0)
+        grads["W2"] = hiddenActivated.transpose().dot(upstreamGrad) + 2 * reg * W2 
+        
+        # Update upstreamGrad to backward further to W1, b1
+        upstreamGrad = upstreamGrad.dot(W2.transpose())        
+        upstreamGrad = upstreamGrad * (hidden > 0).astype(np.int32)
+        
+        grads["b1"] = upstreamGrad.sum(axis = 0)        
+        grads["W1"] = X.transpose().dot(upstreamGrad) + 2 * reg * W1
+        
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
