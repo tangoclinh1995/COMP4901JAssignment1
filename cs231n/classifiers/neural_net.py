@@ -132,7 +132,7 @@ class TwoLayerNet(object):
         grads["b2"] = upstreamGrad.sum(axis = 0)
         grads["W2"] = hiddenActivated.transpose().dot(upstreamGrad) + 2 * reg * W2 
         
-        # Update upstreamGrad to backward further to W1, b1
+        # Update upstreamGrad to go backward further to W1, b1
         upstreamGrad = upstreamGrad.dot(W2.transpose())        
         upstreamGrad = upstreamGrad * (hidden > 0).astype(np.int32)
         
@@ -182,7 +182,11 @@ class TwoLayerNet(object):
             # TODO: Create a random minibatch of training data and labels, storing  #
             # them in X_batch and y_batch respectively.                             #
             #########################################################################
-            pass
+
+            selectedBatchIds = np.random.choice(num_train, batch_size)
+            X_batch = X[selectedBatchIds, :]
+            y_batch = y[selectedBatchIds]            
+            
             #########################################################################
             #                             END OF YOUR CODE                          #
             #########################################################################
@@ -197,7 +201,10 @@ class TwoLayerNet(object):
             # using stochastic gradient descent. You'll need to use the gradients   #
             # stored in the grads dictionary defined above.                         #
             #########################################################################
-            pass
+            
+            for paramNames, param in self.params.items():
+                param -= learning_rate * grads[paramNames]
+            
             #########################################################################
             #                             END OF YOUR CODE                          #
             #########################################################################
@@ -242,7 +249,10 @@ class TwoLayerNet(object):
         ###########################################################################
         # TODO: Implement this function; it should be VERY simple!                #
         ###########################################################################
-        pass
+        
+        scores = self.loss(X)
+        y_pred = scores.argmax(axis = 1)
+        
         ###########################################################################
         #                              END OF YOUR CODE                           #
         ###########################################################################
