@@ -7,7 +7,7 @@ from past.builtins import xrange
 class TwoLayerNet(object):
     """
     A two-layer fully-connected neural network. The net has an input dimension of
-    N, a hidden layer dimension of H, and performs classification over C classes.
+    D, a hidden layer dimension of H, and performs classification over C classes.
     We train the network with a softmax loss function and L2 regularization on the
     weight matrices. The network uses a ReLU nonlinearity after the first fully
     connected layer.
@@ -76,7 +76,17 @@ class TwoLayerNet(object):
         # Store the result in the scores variable, which should be an array of      #
         # shape (N, C).                                                             #
         #############################################################################
-        pass
+        
+        H = b1.shape[0]
+        C = b2.shape[0]
+        
+        # Hidden layer
+        hidden = X.dot(W1) + b1.reshape(1, H)
+        hiddenActivated = np.maximum(0, hidden)
+        
+        # Ouput layer
+        scores = hiddenActivated.dot(W2) + b2.reshape(1, C)
+        
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
@@ -93,7 +103,16 @@ class TwoLayerNet(object):
         # in the variable loss, which should be a scalar. Use the Softmax           #
         # classifier loss.                                                          #
         #############################################################################
-        pass
+        
+        scoreExps = np.exp(scores)
+        exampleLoss = np.log(scoreExps.sum(axis = 1)) - scores[range(N), y]
+        
+        loss = (
+            exampleLoss.sum() / N
+            + reg * np.sum(W1 * W1)
+            + reg * np.sum(W2 * W2)
+        )
+        
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
