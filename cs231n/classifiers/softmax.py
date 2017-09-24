@@ -38,7 +38,20 @@ def softmax_loss_naive(W, X, y, reg):
         score = X[i].dot(W)
         correct_class_score = score[y[i]]
         
-        loss += np.log10(np.exp(score).sum()) - correct_class_score * np.log10(np.exp(1))
+        # Update loss
+        sumExp = np.exp(score).sum()
+        
+        loss += np.log(sumExp) - correct_class_score
+        
+        # Update gradient dW
+        dW[:, y[i]] -= X[i, :].transpose()
+        
+        for j in xrange(num_classes):
+            dW[:, j] += (1 / sumExp) * np.exp(score[j]) * X[i].transpose()
+    
+    loss = loss / num_train + reg * np.sum(W * W)
+    
+    dW = dW / num_train + 2 * reg * W
     
     #############################################################################
     #                          END OF YOUR CODE                                 #
