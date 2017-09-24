@@ -76,7 +76,25 @@ def softmax_loss_vectorized(W, X, y, reg):
     # here, it is easy to run into numeric instability. Don't forget the        #
     # regularization!                                                           #
     #############################################################################
-    pass
+    
+    # Compute loss
+    num_classes = W.shape[1]
+    num_train = X.shape[0]
+    size_data = W.shape[0]
+    
+    matScore = X.dot(W)
+    exampleSumExp = np.exp(X.dot(W)).sum(axis = 1)
+    exampleLoss = np.log(exampleSumExp) - matScore[range(num_train), y]
+    
+    loss = exampleLoss.sum() / num_train + reg * np.sum(W * W)    
+    
+    # Compute gradient
+    matGradContrib = np.zeros((num_train, num_classes, ))
+    matGradContrib[range(num_train), y] -= 1
+    matGradContrib += np.exp(matScore) * (1 / exampleSumExp).reshape(num_train, 1)
+    
+    dW = X.transpose().dot(matGradContrib) / num_train + 2 * reg * W    
+    
     #############################################################################
     #                          END OF YOUR CODE                                 #
     #############################################################################
