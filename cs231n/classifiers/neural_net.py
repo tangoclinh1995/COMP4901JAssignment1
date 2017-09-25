@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 from past.builtins import xrange
@@ -166,8 +167,9 @@ class TwoLayerNet(object):
         - batch_size: Number of training examples to use per step.
         - verbose: boolean; if true print progress during optimization.
         """
+        
         num_train = X.shape[0]
-        iterations_per_epoch = max(num_train / batch_size, 1)
+        iterations_per_epoch = max(math.floor(num_train / batch_size), 1)
 
         # Use SGD to optimize the parameters in self.model
         loss_history = []
@@ -222,7 +224,7 @@ class TwoLayerNet(object):
 
                 # Decay learning rate
                 learning_rate *= learning_rate_decay
-
+        
         return {
             'loss_history': loss_history,
             'train_acc_history': train_acc_history,
