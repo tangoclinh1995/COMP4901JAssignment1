@@ -31,6 +31,7 @@ def extract_features(imgs, feature_fns, verbose=False):
     # Use the first image to determine feature dimensions
     feature_dims = []
     first_image_features = []
+    
     for feature_fn in feature_fns:
         feats = feature_fn(imgs[0].squeeze())
         assert len(feats.shape) == 1, 'Feature functions must be one-dimensional'
@@ -98,13 +99,16 @@ def hog_feature(im):
 
     gx = np.zeros(image.shape)
     gy = np.zeros(image.shape)
+    
     gx[:, :-1] = np.diff(image, n=1, axis=1) # compute gradient on x-direction
     gy[:-1, :] = np.diff(image, n=1, axis=0) # compute gradient on y-direction
+    
     grad_mag = np.sqrt(gx ** 2 + gy ** 2) # gradient magnitude
     grad_ori = np.arctan2(gy, (gx + 1e-15)) * (180 / np.pi) + 90 # gradient orientation
 
     n_cellsx = int(np.floor(sx / cx))  # number of cells in x
     n_cellsy = int(np.floor(sy / cy))  # number of cells in y
+    
     # compute orientations integral images
     orientation_histogram = np.zeros((n_cellsx, n_cellsy, orientations))
 
@@ -113,12 +117,14 @@ def hog_feature(im):
         # isolate orientations in this range
         temp_ori = np.where(grad_ori < 180 / orientations * (i + 1),
                             grad_ori, 0)
+        
         temp_ori = np.where(grad_ori >= 180 / orientations * i,
                             temp_ori, 0)
+        
         # select magnitudes for those orientations
         cond2 = temp_ori > 0
         temp_mag = np.where(cond2, grad_mag, 0)
-        orientation_histogram[:,:,i] = uniform_filter(temp_mag, size=(cx, cy))[cx/2::cx, cy/2::cy].T
+        orientation_histogram[:, :, i] = uniform_filter(temp_mag, size=(cx, cy))[int(cx/2): : cx, int(cy/2): : cy].T
   
     return orientation_histogram.ravel()
 
